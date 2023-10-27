@@ -1,0 +1,25 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Stats Visualizer",
+	"Description": "Debug display for custom stat list",
+	"Category": "Profiling",
+	"CreatedBy": "Amit Mehar",
+	"CreatedByURL": "https://twitter.com/amu_mhr",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EnabledByDefault": false,
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "StatsVisualizer",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
