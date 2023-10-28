@@ -2,8 +2,9 @@
 
 #include "CustomStatExpressions.h"
 
-bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult)
+bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
+#if STATS
 	if (const FComplexStatMessage* StatMessage = Context.Stats.FindRef(StatName))
 	{
 		OutResult = FPlatformTime::ToMilliseconds(StatMessage->GetValue_Duration(EComplexStatField::IncAve));
@@ -29,6 +30,7 @@ bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext&
 		OutResult = DefaultValue;
 		return true;
 	}
+#endif // #if STATS
 
 	return false;
 }
@@ -53,7 +55,7 @@ TSet<FName> UCustomStatExpressionAdd::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionAdd::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult)
+bool UCustomStatExpressionAdd::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
 	OutResult = 0.;
 	for (UCustomStatExpression* Input : Inputs)
@@ -85,7 +87,7 @@ TSet<FName> UCustomStatExpressionSubtract::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionSubtract::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult)
+bool UCustomStatExpressionSubtract::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
 	if (InputA && InputB)
 	{
@@ -119,7 +121,7 @@ TSet<FName> UCustomStatExpressionMultiply::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionMultiply::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult)
+bool UCustomStatExpressionMultiply::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
 	OutResult = 1.;
 	for (UCustomStatExpression* Input : Inputs)
@@ -151,7 +153,7 @@ TSet<FName> UCustomStatExpressionDivide::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionDivide::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult)
+bool UCustomStatExpressionDivide::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
 	if (InputA && InputB)
 	{

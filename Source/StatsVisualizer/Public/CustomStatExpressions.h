@@ -7,8 +7,10 @@
 
 struct STATSVISUALIZER_API FCustomStatEvaluationContext
 {
+#if STATS
 	const TMap<FName, const FComplexStatMessage*>& Stats;
 	const TMap<FName, const FComplexStatMessage*>& CounterStats;
+#endif
 };
 
 UCLASS(Abstract, BlueprintType, EditInlineNew, CollapseCategories)
@@ -25,7 +27,7 @@ public:
 	/*
 	* Evaluates a stat expression and returns true if expression is valid.
 	*/
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) { return false; }
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const { return false; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +38,7 @@ class STATSVISUALIZER_API UCustomStatExpressionConstant : public UCustomStatExpr
 	GENERATED_BODY()
 
 public:
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) { OutResult = Constant; return true; }
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override { OutResult = Constant; return true; }
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -58,7 +60,7 @@ public:
 	*	1. Stat name and group doesn't match code declaration.
 	*	2. Stat is not ready (we didn't encounter any code updating the stat).
 	*/	
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) override;
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
 	// StatName should match code STAT_*
@@ -85,7 +87,7 @@ public:
 	UCustomStatExpressionAdd();
 
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) override;
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
 	UPROPERTY(EditAnywhere, Instanced)
@@ -101,7 +103,7 @@ class STATSVISUALIZER_API UCustomStatExpressionSubtract : public UCustomStatExpr
 
 public:
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) override;
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
 	UPROPERTY(EditAnywhere, Instanced)
@@ -122,7 +124,7 @@ public:
 	UCustomStatExpressionMultiply();
 
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) override;
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
 	UPROPERTY(EditAnywhere, Instanced)
@@ -138,7 +140,7 @@ class STATSVISUALIZER_API UCustomStatExpressionDivide : public UCustomStatExpres
 
 public:
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) override;
+	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
 	UPROPERTY(EditAnywhere, Instanced)
