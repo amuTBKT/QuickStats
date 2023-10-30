@@ -5,12 +5,12 @@
 bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
 {
 #if STATS
-	if (const FComplexStatMessage* StatMessage = Context.Stats.FindRef(StatName))
+	if (const FComplexStatMessage* StatMessage = Context.Stats.FindRef(StatDefinition.StatName))
 	{
 		OutResult = FPlatformTime::ToMilliseconds(StatMessage->GetValue_Duration(EComplexStatField::IncAve));
 		return true;
 	}
-	else if (const FComplexStatMessage* CounterStatMessage = Context.CounterStats.FindRef(StatName))
+	else if (const FComplexStatMessage* CounterStatMessage = Context.CounterStats.FindRef(StatDefinition.StatName))
 	{
 		if (CounterStatMessage->NameAndInfo.GetField<EStatDataType>() == EStatDataType::ST_double)
 		{

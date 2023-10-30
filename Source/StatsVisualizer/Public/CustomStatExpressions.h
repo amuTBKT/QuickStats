@@ -47,13 +47,27 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+USTRUCT()
+struct STATSVISUALIZER_API FCodeStatDefinition
+{
+	GENERATED_BODY()
+
+	// StatName should match code STATGROUP_*
+	UPROPERTY(EditAnywhere)
+	FName StatGroupName = NAME_None;
+
+	// StatName should match code STAT_*
+	UPROPERTY(EditAnywhere)
+	FName StatName = NAME_None;
+};
+
 UCLASS(meta = (DisplayName = "Read Stat"))
 class STATSVISUALIZER_API UCustomStatExpressionReadStat : public UCustomStatExpression
 {
 	GENERATED_BODY()
 
 public:
-	virtual TSet<FName> GetRequiredStatGroupNames() const { return TSet<FName>{ StatGroupName }; }
+	virtual TSet<FName> GetRequiredStatGroupNames() const { return TSet<FName>{ StatDefinition.StatGroupName }; }
 
 	/*
 	* Expression can be invalid if 
@@ -63,13 +77,8 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	// StatName should match code STAT_*
 	UPROPERTY(EditAnywhere)
-	FName StatName = NAME_None;
-
-	// StatName should match code STATGROUP_*
-	UPROPERTY(EditAnywhere)
-	FName StatGroupName = NAME_None;
+	FCodeStatDefinition StatDefinition;
 
 	// If >=0 use default value in case stat is not available
 	UPROPERTY(EditAnywhere)
