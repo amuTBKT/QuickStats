@@ -21,6 +21,9 @@ const FName		FCustomStatsRenderer::StatsVisualizerPresetsName = FName(TEXT("STAT
 const FName		FCustomStatsRenderer::StatsVisualizerPresetsCategory = FName(TEXT("STATCAT_StatsVisualizerPresets"));
 const FText		FCustomStatsRenderer::StatsVisualizerPresetsDescription = FText::FromString(FString(TEXT("Visualizer for custom stats.")));
 
+FDelegateHandle FCustomStatsRenderer::ConsoleAutoCompleteHandle;
+FDelegateHandle FCustomStatsRenderer::OnObjectPropertyChangedHandle;
+
 static TAutoConsoleVariable<FString> CVarEnabledPresets(
 	TEXT("stats.Presets"),
 	TEXT(""),
@@ -97,7 +100,11 @@ void FCustomStatsRenderer::RegisterStatPresets()
 		GEngine->AddEngineStat(StatsVisualizerPresetsName, StatsVisualizerPresetsCategory, StatsVisualizerPresetsDescription, RenderFunc, ToggleFunc, false);
 	}
 
-	UConsole::RegisterConsoleAutoCompleteEntries.AddStatic(&FCustomStatsRenderer::PopulateAutoCompletePresetNames);
+	ConsoleAutoCompleteHandle = UConsole::RegisterConsoleAutoCompleteEntries.AddStatic(&FCustomStatsRenderer::PopulateAutoCompletePresetNames);
+
+#if WITH_EDITOR
+	OnObjectPropertyChangedHandle = FCoreUObjectDelegates::OnObjectPropertyChanged.AddStatic(&FCustomStatsRenderer::OnObjectPropertyChanged);
+#endif
 
 	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
 	check(Settings);
@@ -150,7 +157,23 @@ void FCustomStatsRenderer::UnregisterStatPresets()
 	{
 		GEngine->RemoveEngineStat(StatsVisualizerPresetsName);
 	}
+
+	UConsole::RegisterConsoleAutoCompleteEntries.Remove(ConsoleAutoCompleteHandle);
+
+#if WITH_EDITOR
+	FCoreUObjectDelegates::OnObjectPropertyChanged.Remove(OnObjectPropertyChangedHandle);
+#endif
 }
+
+#if WITH_EDITOR
+void FCustomStatsRenderer::OnObjectPropertyChanged(UObject* InObject, FPropertyChangedEvent& InChangeEvent)
+{
+	if (InObject->IsA(UCustomStatPreset::StaticClass()))
+	{
+		SetEnabledPresets(EnabledPresets);
+	}
+}
+#endif
 
 void FCustomStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCommand>& AutoCompleteList)
 {

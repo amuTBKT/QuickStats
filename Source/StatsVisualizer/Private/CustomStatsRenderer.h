@@ -28,20 +28,23 @@ public:
 	static void DisablePresets_Command(const TArray<FName>& PresetNames);
 
 private:
-	// engine stats rendering
 	static int32 OnRenderStats(UWorld* World, FViewport* Viewport, FCanvas* Canvas, int32 X, int32 Y, const FVector* ViewLocation, const FRotator* ViewRotation);
 	static bool OnToggleStats(UWorld* World, FCommonViewportClient* ViewportClient, const TCHAR* Stream);
 	static void PopulateAutoCompletePresetNames(TArray<FAutoCompleteCommand>& AutoCompleteList);
+	static void OnObjectPropertyChanged(UObject* InObject, FPropertyChangedEvent& InChangeEvent);
 
 	// helpers
 	static void SetEnabledPresets(TArray<FName> NewPresets);
 	static void EnableStatGroup(FName StatGroupName);
-	static void DisableStatGroup(FName StatGroupName);
+	static void DisableStatGroup(FName StatGroupName);	
 
 private:
 	static const FName StatsVisualizerPresetsName;
 	static const FName StatsVisualizerPresetsCategory;
 	static const FText StatsVisualizerPresetsDescription;
+
+	static FDelegateHandle ConsoleAutoCompleteHandle;
+	static FDelegateHandle OnObjectPropertyChangedHandle;
 
 	static bool IsRenderingStats;
 	static TArray<FName> EnabledPresets;
