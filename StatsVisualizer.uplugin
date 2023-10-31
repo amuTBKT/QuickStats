@@ -20,6 +20,11 @@
 			"Name": "StatsVisualizer",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "StatsVisualizerEditor",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	]
 }

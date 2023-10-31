@@ -52,11 +52,11 @@ struct STATSVISUALIZER_API FCodeStatDefinition
 {
 	GENERATED_BODY()
 
-	// StatName should match code STATGROUP_*
+	// Should match code STATGROUP_*
 	UPROPERTY(EditAnywhere)
 	FName StatGroupName = NAME_None;
 
-	// StatName should match code STAT_*
+	// Should match code STAT_*
 	UPROPERTY(EditAnywhere)
 	FName StatName = NAME_None;
 };
