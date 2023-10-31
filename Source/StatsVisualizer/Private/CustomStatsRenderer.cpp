@@ -15,7 +15,8 @@
 #include "Engine/Font.h"
 
 bool			FCustomStatsRenderer::IsRenderingStats = false;
-TArray<FName>	FCustomStatsRenderer::EnabledPresets = {};
+TArray<FName>	FCustomStatsRenderer::EnabledPresets;
+TSet<FName>		FCustomStatsRenderer::EnabledStatGroups;
 
 const FName		FCustomStatsRenderer::StatsVisualizerPresetsName = FName(TEXT("STAT_Presets"));
 const FName		FCustomStatsRenderer::StatsVisualizerPresetsCategory = FName(TEXT("STATCAT_StatsVisualizerPresets"));
@@ -379,6 +380,8 @@ bool FCustomStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* V
 		{
 			EnableStatGroup(StatGroup);
 		}
+
+		EnabledStatGroups = StatGroupsToToggle;
 	}
 	else
 	{
@@ -386,6 +389,8 @@ bool FCustomStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* V
 		{
 			DisableStatGroup(StatGroup);
 		}
+
+		EnabledStatGroups.Reset();
 	}
 
 	return false;
@@ -442,20 +447,7 @@ void FCustomStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 	// if rendering we need to enable/disable stat-groups accordingly
 	if (IsRenderingStats)
 	{
-		TSet<FName> StatGroupsToDisable;
-		for (FName PresetName : EnabledPresets)
-		{
-			if (const UCustomStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
-			{
-				for (const FCustomStat& Stat : StatPreset->StatsToDisplay)
-				{
-					if (Stat.StatExpression)
-					{
-						StatGroupsToDisable.Append(Stat.StatExpression->GetRequiredStatGroupNames());
-					}
-				}
-			}
-		}
+		TSet<FName> StatGroupsToDisable = EnabledStatGroups;
 
 		TSet<FName> StatGroupsToEnable;
 		for (FName PresetName : NewPresets)
@@ -485,6 +477,8 @@ void FCustomStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 		{
 			EnableStatGroup(StatGroup);
 		}
+
+		EnabledStatGroups = StatGroupsToEnable;
 	}
 
 	EnabledPresets = NewPresets;

@@ -48,6 +48,8 @@ private:
 
 	static bool IsRenderingStats;
 	static TArray<FName> EnabledPresets;
+	// StatExpression can change when modifying Presets, so need to keep track of enabled statgroups.
+	static TSet<FName> EnabledStatGroups;
 };
 
 #endif //#if STATS
