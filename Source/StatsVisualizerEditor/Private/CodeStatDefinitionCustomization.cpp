@@ -5,6 +5,7 @@
 #include "IDetailChildrenBuilder.h"
 #include "DetailWidgetRow.h"
 #include "PropertyHandle.h"
+#include "String/Find.h"
 #include "Editor.h"
 
 #include "Framework/Application/SlateApplication.h"
@@ -15,8 +16,6 @@
 #include "Widgets/Input/SButton.h"
 
 #define LOCTEXT_NAMESPACE "FCodeStatDefinitionCustomization"
-
-UE_DISABLE_OPTIMIZATION
 
 TMap<FName, TArray<FName>>                                        FCodeStatDefinitionCustomization::AvailableStatGroups;
 TArray<FCodeStatDefinitionCustomization::FTreeNodePtr>            FCodeStatDefinitionCustomization::AvailableStatGroupNodes;
@@ -52,16 +51,25 @@ public:
 		{
 			if (FCString::Strlen(V) > 0)
 			{
+				// for compatibility (UE4.27 doesn't have StringView.Find function)
+				auto StringViewFind = [](const FStringView& String, const FStringView& Search, int32 StartPosition = 0)
+				{
+					const int32 Index = UE::String::FindFirst(String.RightChop(StartPosition), Search);
+					return Index == INDEX_NONE ? INDEX_NONE : Index + StartPosition;
+				};
+
 				FStringView SanitizedParsingView = FStringView(V);
 
 				// required to contain "//STATGROUP_"
-				if (int32 GroupNameStartIndex = SanitizedParsingView.Find(TEXT("//STATGROUP_")); GroupNameStartIndex > INDEX_NONE)
+				int32 GroupNameStartIndex = StringViewFind(SanitizedParsingView, TEXT("//STATGROUP_"));
+				if (GroupNameStartIndex > INDEX_NONE)
 				{
 					// remove "//" from front
 					SanitizedParsingView = SanitizedParsingView.Mid(GroupNameStartIndex + 2);
 
 					// required to contain terminating "//"
-					if (int32 GroupNameEndIndex = SanitizedParsingView.Find(TEXT("//")); GroupNameEndIndex > INDEX_NONE)
+					int32 GroupNameEndIndex = StringViewFind(SanitizedParsingView, TEXT("//"));
+					if (GroupNameEndIndex > INDEX_NONE)
 					{
 						FName StatGroupName = FName(SanitizedParsingView.SubStr(0, GroupNameEndIndex));
 
@@ -71,13 +79,15 @@ public:
 							SanitizedParsingView = SanitizedParsingView.Mid(GroupNameEndIndex + 2);
 
 							// Optional: remove characters after "///"
-							if (int32 Index = SanitizedParsingView.Find(TEXT("///")); Index > INDEX_NONE)
+							int32 Index = StringViewFind(SanitizedParsingView, TEXT("///"));
+							if (Index > INDEX_NONE)
 							{
 								SanitizedParsingView = SanitizedParsingView.SubStr(0, Index);
 							}
 
 							// Optional: remove characters after "####"
-							if (int32 Index = SanitizedParsingView.Find(TEXT("####")); Index > INDEX_NONE)
+							Index = StringViewFind(SanitizedParsingView, TEXT("####"));
+							if (Index > INDEX_NONE)
 							{
 								SanitizedParsingView = SanitizedParsingView.SubStr(0, Index);
 							}
@@ -101,7 +111,7 @@ TSharedRef<IPropertyTypeCustomization> FCodeStatDefinitionCustomization::MakeIns
 
 FCodeStatDefinitionCustomization::FCodeStatDefinitionCustomization()
 {
-	if (AvailableStatGroups.IsEmpty())
+	if (AvailableStatGroups.Num() == 0)
 	{
 		RefreshAvailableStats();
 	}
@@ -196,7 +206,6 @@ void FCodeStatDefinitionCustomization::CustomizeHeader(TSharedRef<IPropertyHandl
 		.AutoWidth()
 		[
 			SNew(SComboButton)
-			.ComboButtonStyle(FAppStyle::Get(), "ComboButton")
 			.HasDownArrow(true)
 			.ContentPadding(1)
 			.IsEnabled(true)
@@ -241,7 +250,7 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 	{
 		if (Row->IsStatGroupNode())
 		{
-			if (!FilterStringTokens.IsEmpty() && !FilterNodeCheck(Row))
+			if ((FilterStringTokens.Num() > 0) && !FilterNodeCheck(Row))
 			{
 				OutChildren.Reserve(AvailableChildrenNodes[Row->GetChildrenIndex()].Num());
 				for (const FTreeNodePtr& Child : AvailableChildrenNodes[Row->GetChildrenIndex()])
@@ -385,7 +394,7 @@ void FCodeStatDefinitionCustomization::ScrollTreeToSelectedNode() const
 
 void FCodeStatDefinitionCustomization::RefreshStatTree()
 {
-	if (FilterStringTokens.IsEmpty())
+	if (FilterStringTokens.Num() == 0)
 	{
 		StatTreeWidget->SetTreeItemsSource(&AvailableStatGroupNodes);
 	}
@@ -416,7 +425,7 @@ void FCodeStatDefinitionCustomization::RefreshStatTree()
 
 	StatTreeWidget->RequestTreeRefresh();
 
-	if (FilterStringTokens.IsEmpty())
+	if (FilterStringTokens.Num() == 0)
 	{
 		ScrollTreeToSelectedNode();
 	}
@@ -425,7 +434,7 @@ void FCodeStatDefinitionCustomization::RefreshStatTree()
 void FCodeStatDefinitionCustomization::OnFilterTextChanged(const FText& InFilterText)
 {
 	FString FilterString = InFilterText.ToString().TrimStartAndEnd();
-	if (!FilterString.IsEmpty())
+	if (FilterString.Len() > 0)
 	{
 		FilterString.ParseIntoArray(FilterStringTokens, TEXT(" "));
 	}
@@ -497,7 +506,5 @@ void FCodeStatDefinitionCustomization::RefreshAvailableStats()
 		ChildIndex += 1;
 	}
 }
-
-UE_ENABLE_OPTIMIZATION
 
 #undef LOCTEXT_NAMESPACE

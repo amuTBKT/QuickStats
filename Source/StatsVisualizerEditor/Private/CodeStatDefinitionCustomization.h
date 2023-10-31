@@ -22,16 +22,16 @@ class FCodeStatDefinitionCustomization : public IPropertyTypeCustomization, publ
 		{
 			TSharedPtr<FStatTreeNode> Node = MakeShared<FStatTreeNode>();
 			Node->bIsStatGroupNode = true;
-			Node->StatGroupName = InStatGroupName;
-			Node->ChildrenIndex = InChildrenIndex;
+			Node->StatGroupOrStatName = InStatGroupName;
+			Node->ParentOrChildrenIndex = InChildrenIndex;
 			return Node;
 		}
 		static TSharedPtr<FStatTreeNode> MakeStatNode(FName InStatName, int32 InParentIndex)
 		{
 			TSharedPtr<FStatTreeNode> Node = MakeShared<FStatTreeNode>();
 			Node->bIsStatGroupNode = false;
-			Node->StatName = InStatName;
-			Node->ParentIndex = InParentIndex;
+			Node->StatGroupOrStatName = InStatName;
+			Node->ParentOrChildrenIndex = InParentIndex;
 			return Node;
 		}
 
@@ -41,50 +41,34 @@ class FCodeStatDefinitionCustomization : public IPropertyTypeCustomization, publ
 		FName GetStatGroupName() const
 		{
 			check(IsStatGroupNode());
-			return StatGroupName;
+			return StatGroupOrStatName;
 		}
 		int32 GetChildrenIndex() const
 		{
 			check(IsStatGroupNode());
-			return ChildrenIndex;
+			return ParentOrChildrenIndex;
 		}
 
 		FName GetStatName() const
 		{
 			check(IsStatNode());
-			return StatName;
+			return StatGroupOrStatName;
 		}
 		int32 GetParentIndex() const
 		{
 			check(IsStatNode());
-			return ParentIndex;
+			return ParentOrChildrenIndex;
 		}
 
 		FString GetDisplayName() const
 		{
-			return IsStatGroupNode() ? StatGroupName.ToString() : StatName.ToString();
-		}
-
-		// for TSharedPtr, do not use!
-		FStatTreeNode()
-			: StatGroupName(NAME_None)
-			, ChildrenIndex(INDEX_NONE)
-			, bIsStatGroupNode(true)
-		{
+			return StatGroupOrStatName.ToString();
 		}
 
 	private:
-		union
-		{
-			FName StatGroupName;
-			FName StatName;
-		};
-		union
-		{
-			int32 ParentIndex;
-			int32 ChildrenIndex;
-		};
-		bool bIsStatGroupNode;
+		FName StatGroupOrStatName = NAME_None;
+		int32 ParentOrChildrenIndex = INDEX_NONE;
+		bool bIsStatGroupNode = true;
 	};
 	using FTreeNodePtr = TSharedPtr<FStatTreeNode>;
 
