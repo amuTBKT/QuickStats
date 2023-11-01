@@ -52,9 +52,9 @@ public:
 			if (FCString::Strlen(V) > 0)
 			{
 				// for compatibility (UE4.27 doesn't have StringView.Find function)
-				auto StringViewFind = [](const FStringView& String, const FStringView& Search, int32 StartPosition = 0)
+				auto StringViewFind = [](const FStringView& StringView, const FStringView& Search, int32 StartPosition = 0)
 				{
-					const int32 Index = UE::String::FindFirst(String.RightChop(StartPosition), Search);
+					const int32 Index = UE::String::FindFirst(StringView.RightChop(StartPosition), Search);
 					return Index == INDEX_NONE ? INDEX_NONE : Index + StartPosition;
 				};
 
@@ -130,45 +130,18 @@ FCodeStatDefinitionCustomization::~FCodeStatDefinitionCustomization()
 	}
 }
 
-void FCodeStatDefinitionCustomization::RefreshStatDefinitionFromProperty()
-{
-	TArray<void*> RawData;
-	StructPropertyHandle->AccessRawData(RawData);
-	if ((RawData.Num() != 1) || (RawData[0] == nullptr))
-	{
-		return;
-	}
-
-	CurrentStatDefinition = *reinterpret_cast<FCodeStatDefinition*>(RawData[0]);
-
-	if (CurrentStatDefinition.StatGroupName != NAME_None && CurrentStatDefinition.StatName != NAME_None)
-	{
-		FString StatGroupName = CurrentStatDefinition.StatGroupName.ToString();
-		StatGroupName.RemoveFromStart(TEXT("STATGROUP_"));
-
-		FString StatName = CurrentStatDefinition.StatName.ToString();
-		StatName.RemoveFromStart(TEXT("STAT_"));
-
-		StatExpressionDisplayName = StatGroupName + TEXT(" -> ") + StatName;
-	}
-	else
-	{
-		StatExpressionDisplayName = TEXT("None");
-	}
-}
-
 void FCodeStatDefinitionCustomization::CustomizeHeader(TSharedRef<IPropertyHandle> InStructPropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
 {
 	StructPropertyHandle = InStructPropertyHandle;
 
 	FSimpleDelegate PropertyChangedDelegatge = FSimpleDelegate::CreateLambda([this]()
 		{
-			RefreshStatDefinitionFromProperty();
+			RefreshDefinitionFromProperty();
 		});
 	StructPropertyHandle->SetOnPropertyResetToDefault(PropertyChangedDelegatge);
 	StructPropertyHandle->SetOnPropertyValueChanged(PropertyChangedDelegatge);
 	StructPropertyHandle->SetOnChildPropertyValueChanged(PropertyChangedDelegatge);
-	RefreshStatDefinitionFromProperty();
+	RefreshDefinitionFromProperty();
 
 	HeaderRow
 	.NameContent()
@@ -231,6 +204,33 @@ void FCodeStatDefinitionCustomization::CustomizeChildren(TSharedRef<IPropertyHan
 	ChildBuilder.AddProperty(StatNameProperty.ToSharedRef());
 }
 
+void FCodeStatDefinitionCustomization::RefreshDefinitionFromProperty()
+{
+	TArray<void*> RawData;
+	StructPropertyHandle->AccessRawData(RawData);
+	if ((RawData.Num() != 1) || (RawData[0] == nullptr))
+	{
+		return;
+	}
+
+	CurrentStatDefinition = *reinterpret_cast<FCodeStatDefinition*>(RawData[0]);
+
+	if (CurrentStatDefinition.StatGroupName != NAME_None && CurrentStatDefinition.StatName != NAME_None)
+	{
+		FString StatGroupName = CurrentStatDefinition.StatGroupName.ToString();
+		StatGroupName.RemoveFromStart(TEXT("STATGROUP_"));
+
+		FString StatName = CurrentStatDefinition.StatName.ToString();
+		StatName.RemoveFromStart(TEXT("STAT_"));
+
+		StatExpressionDisplayName = StatGroupName + TEXT(" -> ") + StatName;
+	}
+	else
+	{
+		StatExpressionDisplayName = TEXT("None");
+	}
+}
+
 TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 {
 	FilterStringTokens.Reset();
@@ -250,12 +250,12 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 	{
 		if (Row->IsStatGroupNode())
 		{
-			if ((FilterStringTokens.Num() > 0) && !FilterNodeCheck(Row))
+			if ((FilterStringTokens.Num() > 0) && !FilterNodeCheck(Row.Get()))
 			{
 				OutChildren.Reserve(AvailableChildrenNodes[Row->GetChildrenIndex()].Num());
 				for (const FTreeNodePtr& Child : AvailableChildrenNodes[Row->GetChildrenIndex()])
 				{
-					if (FilterNodeCheck(Child))
+					if (FilterNodeCheck(Child.Get()))
 					{
 						OutChildren.Add(Child);
 					}
@@ -282,6 +282,32 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 				StructPropertyHandle->SetValueFromFormattedString(Value);
 			}
 		}
+	})
+	.OnKeyDownHandler_Lambda([this](const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+	{
+		if (FSlateApplication::Get().GetNavigationActionFromKey(InKeyEvent) == EUINavigationAction::Accept)
+		{
+			TArray<FTreeNodePtr> Selection = StatTreeWidget->GetSelectedItems();
+			FTreeNodePtr SelectedItem;
+			if (!Selection.IsEmpty())
+			{
+				SelectedItem = Selection[0];
+			}
+
+			if (SelectedItem.IsValid() && SelectedItem->IsStatNode())
+			{
+				FTreeNodePtr StatGroupNode = AvailableStatGroupNodes[SelectedItem->GetParentIndex()];
+
+				FString Value = FString::Printf(TEXT("(StatGroupName=\"%s\",StatName=\"%s\")"),
+					*StatGroupNode->GetDisplayName(),
+					*SelectedItem->GetDisplayName());
+				StructPropertyHandle->SetValueFromFormattedString(Value);
+			}
+
+			return FReply::Handled();
+		}
+
+		return FReply::Unhandled();
 	});
 		
 	return
@@ -368,7 +394,7 @@ void FCodeStatDefinitionCustomization::ScrollTreeToSelectedNode() const
 			return Node->GetStatGroupName() == SelectedStatGroupName;
 		});
 
-	if (SelectedStatGroupNode)
+	if (SelectedStatGroupNode && SelectedStatGroupNode->IsValid())
 	{
 		// to handle cases where StatName is unset but StatGroup is valid.
 		FTreeNodePtr* NodeToSelect = SelectedStatGroupNode;
@@ -381,7 +407,7 @@ void FCodeStatDefinitionCustomization::ScrollTreeToSelectedNode() const
 
 		if (SelectedStatNode && SelectedStatNode->IsValid())
 		{
-			StatTreeWidget->SetItemExpansion(*SelectedStatGroupNode, /*bExpand*/true);
+			StatTreeWidget->SetItemExpansion(*SelectedStatGroupNode, true);
 
 			NodeToSelect = SelectedStatNode;
 		}
@@ -404,7 +430,7 @@ void FCodeStatDefinitionCustomization::RefreshStatTree()
 
 		for (const FTreeNodePtr& StatGroupNode : AvailableStatGroupNodes)
 		{
-			if (FilterChildrenCheck(StatGroupNode))
+			if (FilterChildrenCheck(StatGroupNode.Get()))
 			{
 				// if any child node passes the filter, expand group node.
 				FilteredStatGroupNodes.Add(StatGroupNode);
@@ -412,7 +438,7 @@ void FCodeStatDefinitionCustomization::RefreshStatTree()
 			}
 			else
 			{
-				if (FilterNodeCheck(StatGroupNode))
+				if (FilterNodeCheck(StatGroupNode.Get()))
 				{
 					// add group node in collapsed state.
 					FilteredStatGroupNodes.Add(StatGroupNode);
@@ -446,7 +472,7 @@ void FCodeStatDefinitionCustomization::OnFilterTextChanged(const FText& InFilter
 	RefreshStatTree();
 }
 
-bool FCodeStatDefinitionCustomization::FilterNodeCheck(const FTreeNodePtr& Node) const
+bool FCodeStatDefinitionCustomization::FilterNodeCheck(const FStatTreeNode* Node) const
 {
 	for (const FString& FilterString : FilterStringTokens)
 	{
@@ -458,13 +484,13 @@ bool FCodeStatDefinitionCustomization::FilterNodeCheck(const FTreeNodePtr& Node)
 	return true;
 }
 
-bool FCodeStatDefinitionCustomization::FilterChildrenCheck(const FTreeNodePtr& Node) const
+bool FCodeStatDefinitionCustomization::FilterChildrenCheck(const FStatTreeNode* Node) const
 {
 	if (Node->IsStatGroupNode())
 	{
 		for (const FTreeNodePtr& Child : AvailableChildrenNodes[Node->GetChildrenIndex()])
 		{
-			if (FilterNodeCheck(Child))
+			if (FilterNodeCheck(Child.Get()))
 			{
 				return true;
 			}

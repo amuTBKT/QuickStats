@@ -78,13 +78,12 @@ public:
 	FCodeStatDefinitionCustomization();
 	~FCodeStatDefinitionCustomization();
 
-	void RefreshStatDefinitionFromProperty();
-
+	// FEditorUndoClient interface
 	virtual void PostUndo(bool bSuccess) override
 	{
 		if (bSuccess)
 		{
-			RefreshStatDefinitionFromProperty();
+			RefreshDefinitionFromProperty();
 		}
 	}
 	virtual void PostRedo(bool bSuccess) override
@@ -92,10 +91,13 @@ public:
 		PostUndo(bSuccess);
 	}
 
+	// IPropertyTypeCustomization interface
 	virtual void CustomizeHeader(TSharedRef<IPropertyHandle> InStructPropertyHandle, FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
 	virtual void CustomizeChildren(TSharedRef<IPropertyHandle> InStructPropertyHandle, IDetailChildrenBuilder& ChildBuilder, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
 	
 private:
+	void RefreshDefinitionFromProperty();
+
 	TSharedRef<SWidget> GetMenuContent();
 	void OnMenuOpenChanged(bool bOpen) const;
 	
@@ -103,8 +105,8 @@ private:
 	void RefreshStatTree();
 
 	void OnFilterTextChanged(const FText& InFilterText);
-	bool FilterNodeCheck(const FTreeNodePtr& Node) const;
-	bool FilterChildrenCheck(const FTreeNodePtr& Node) const;
+	bool FilterNodeCheck(const FStatTreeNode* Node) const;
+	bool FilterChildrenCheck(const FStatTreeNode* Node) const;
 
 	static void RefreshAvailableStats();
 
