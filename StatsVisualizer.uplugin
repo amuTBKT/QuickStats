@@ -18,13 +18,15 @@
 	"Modules": [
 		{
 			"Name": "StatsVisualizer",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"Type": "DeveloperTool",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [ "Win64", "Mac", "IOS", "Android" ]
 		},
 		{
 			"Name": "StatsVisualizerEditor",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [ "Win64", "Mac" ]
 		}
 	]
 }

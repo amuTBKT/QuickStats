@@ -13,11 +13,11 @@ struct STATSVISUALIZER_API FCustomStat
 	GENERATED_BODY()
 
 	// Stat description used by visualizer
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Custom Stat")
 	FString StatDescription = TEXT("STAT_DESC");
 
 	// Stat expression to evaluate
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "Custom Stat")
 	UCustomStatExpression* StatExpression = nullptr;
 
 	/*
@@ -26,7 +26,7 @@ struct STATSVISUALIZER_API FCustomStat
 	> 75% of Budget	= Yellow
 	< 75% of Budget	= Green
 	*/
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Custom Stat")
 	double Budget = 0.;
 };
 
@@ -36,7 +36,7 @@ class STATSVISUALIZER_API UCustomStatPreset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Stat Preset")
 	TArray<FCustomStat> StatsToDisplay;
 };
 
@@ -57,30 +57,30 @@ public:
 
 public:
 	// List of stats to display
-	UPROPERTY(config, EditAnywhere)
+	UPROPERTY(config, EditAnywhere, Category = "Stats")
 	TMap<FName, TSoftObjectPtr<UCustomStatPreset>> StatPresets;
 
 	// Horizontal offset to start stat rendering
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	int32 ViewportOffsetX = -50;
 
 	// Vertical offset to start stat rendering
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	int32 ViewportOffsetY = 128;
 
 	// Spacing between stat name and value
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	int32 ColumnSpacing = 256;
 
 	// Maximum length after which stat description is trimmed
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	int32 StatDescriptionMaxLength = 32;
 
 	// Background tint color
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	FLinearColor BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.5f);
 
 	// Whether to show Preset categories
-	UPROPERTY(config, EditAnywhere, Category = Layout)
+	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	bool ShowPresetNames = true;
 };

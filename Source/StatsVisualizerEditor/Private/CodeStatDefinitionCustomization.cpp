@@ -284,7 +284,7 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 			}
 		}
 	})
-#if (ENGINE_MAJOR_VERSION > 4)
+#if (ENGINE_MAJOR_VERSION >= 5 && ENGINE_MINOR_VERSION >= 3)
 	.OnKeyDownHandler_Lambda([this](const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 	{
 		if (FSlateApplication::Get().GetNavigationActionFromKey(InKeyEvent) == EUINavigationAction::Accept)

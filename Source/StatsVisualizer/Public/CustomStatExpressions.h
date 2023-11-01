@@ -41,7 +41,7 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override { OutResult = Constant; return true; }
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
 	double Constant = 0.;
 };
 
@@ -53,11 +53,11 @@ struct STATSVISUALIZER_API FCodeStatDefinition
 	GENERATED_BODY()
 
 	// Should match code STATGROUP_*
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Stat Definition")
 	FName StatGroupName = NAME_None;
 
 	// Should match code STAT_*
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Stat Definition")
 	FName StatName = NAME_None;
 };
 
@@ -77,11 +77,11 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
 	FCodeStatDefinition StatDefinition;
 
 	// If >=0 use default value in case stat is not available
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
 	double DefaultValue = -1.;
 };
 
@@ -99,7 +99,7 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	TArray<UCustomStatExpression*> Inputs;
 };
 
@@ -115,10 +115,10 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	UCustomStatExpression* InputA = nullptr;
 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	UCustomStatExpression* InputB = nullptr;
 };
 
@@ -136,7 +136,7 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	TArray<UCustomStatExpression*> Inputs;
 };
 
@@ -152,9 +152,9 @@ public:
 	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	UCustomStatExpression* InputA = nullptr;
 
-	UPROPERTY(EditAnywhere, Instanced)
+	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
 	UCustomStatExpression* InputB = nullptr;
 };
