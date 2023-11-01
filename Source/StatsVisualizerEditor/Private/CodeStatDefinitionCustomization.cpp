@@ -2,6 +2,7 @@
 
 #include "CodeStatDefinitionCustomization.h"
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "IDetailChildrenBuilder.h"
 #include "DetailWidgetRow.h"
 #include "PropertyHandle.h"
@@ -283,6 +284,7 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 			}
 		}
 	})
+#if (ENGINE_MAJOR_VERSION > 4)
 	.OnKeyDownHandler_Lambda([this](const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 	{
 		if (FSlateApplication::Get().GetNavigationActionFromKey(InKeyEvent) == EUINavigationAction::Accept)
@@ -308,7 +310,9 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 		}
 
 		return FReply::Unhandled();
-	});
+	})
+#endif
+	.ItemHeight(16);
 		
 	return
 		SNew(SBorder)
