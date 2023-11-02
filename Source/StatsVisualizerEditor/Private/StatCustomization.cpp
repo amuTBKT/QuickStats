@@ -1,6 +1,6 @@
 // Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
 
-#include "CodeStatDefinitionCustomization.h"
+#include "StatCustomization.h"
 
 #include "Runtime/Launch/Resources/Version.h"
 #include "IDetailChildrenBuilder.h"

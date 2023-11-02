@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-#include "CodeStatDefinitionCustomization.h"
+#include "StatCustomization.h"
 #include "PropertyEditorModule.h"
 
 #define LOCTEXT_NAMESPACE "FStatsVisualizerEditorModule"
