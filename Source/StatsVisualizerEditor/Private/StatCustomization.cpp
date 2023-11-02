@@ -240,11 +240,24 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 	.TreeItemsSource(&AvailableStatGroupNodes)
 	.OnGenerateRow_Lambda([this](FTreeNodePtr InItem, const TSharedRef<STableViewBase>& OwnerTable)
 	{
+		FString DisplayName = InItem->GetValueAsString();
+		FText ToolTipText = FText::GetEmpty();
+
+		// clamp display name for Stat nodes and show tooltip if display name is trimmed.
+		constexpr int32 DisplayNameMaxLength = 50;
+		if (InItem->IsStatNode() && (DisplayName.Len() > DisplayNameMaxLength))
+		{
+			ToolTipText = FText::FromString(DisplayName);
+
+			DisplayName = FString(TEXT("...")) + DisplayName.Right(DisplayNameMaxLength);
+		}
+
 		return
 			SNew(STableRow<FTreeNodePtr>, OwnerTable)
 			[
 				SNew(STextBlock)
-				.Text(FText::FromString(InItem->GetDisplayName()))
+				.Text(FText::FromString(DisplayName))
+				.ToolTipText(ToolTipText)
 			];
 	})
 	.OnGetChildren_Lambda([this](FTreeNodePtr Row, TArray<FTreeNodePtr>& OutChildren)
@@ -278,8 +291,8 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 				FTreeNodePtr StatGroupNode = AvailableStatGroupNodes[SelectedItem->GetParentIndex()];
 
 				FString Value = FString::Printf(TEXT("(StatGroupName=\"%s\",StatName=\"%s\")"),
-					*StatGroupNode->GetDisplayName(),
-					*SelectedItem->GetDisplayName());
+					*StatGroupNode->GetValueAsString(),
+					*SelectedItem->GetValueAsString());
 				StructPropertyHandle->SetValueFromFormattedString(Value);
 			}
 		}
@@ -301,8 +314,8 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 				FTreeNodePtr StatGroupNode = AvailableStatGroupNodes[SelectedItem->GetParentIndex()];
 
 				FString Value = FString::Printf(TEXT("(StatGroupName=\"%s\",StatName=\"%s\")"),
-					*StatGroupNode->GetDisplayName(),
-					*SelectedItem->GetDisplayName());
+					*StatGroupNode->GetValueAsString(),
+					*SelectedItem->GetValueAsString());
 				StructPropertyHandle->SetValueFromFormattedString(Value);
 			}
 
@@ -480,7 +493,7 @@ bool FCodeStatDefinitionCustomization::FilterNodeCheck(const FStatTreeNode* Node
 {
 	for (const FString& FilterString : FilterStringTokens)
 	{
-		if (!Node->GetDisplayName().Contains(FilterString))
+		if (!Node->GetValueAsString().Contains(FilterString))
 		{
 			return false;
 		}

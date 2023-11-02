@@ -60,7 +60,7 @@ class FCodeStatDefinitionCustomization : public IPropertyTypeCustomization, publ
 			return ParentOrChildrenIndex;
 		}
 
-		FString GetDisplayName() const
+		FString GetValueAsString() const
 		{
 			return StatGroupOrStatName.ToString();
 		}
