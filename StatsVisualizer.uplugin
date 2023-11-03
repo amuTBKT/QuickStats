@@ -1,9 +1,9 @@
 {
-	"FileVersion": 1,
+	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
 	"FriendlyName": "Stats Visualizer",
-	"Description": "Debug display for custom stat list",
+	"Description": "Debug display for custom stat list.",
 	"Category": "Profiling",
 	"CreatedBy": "Amit Mehar",
 	"CreatedByURL": "https://twitter.com/amu_mhr",
@@ -18,15 +18,16 @@
 	"Modules": [
 		{
 			"Name": "StatsVisualizer",
-			"Type": "DeveloperTool",
+			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [ "Win64", "Mac", "IOS", "Android" ]
+			"TargetConfigurationDenyList": [ "Shipping" ],
+			"WhitelistPlatforms": [ "Win64", "Linux", "Mac", "IOS", "Android" ]
 		},
 		{
 			"Name": "StatsVisualizerEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default",
-			"WhitelistPlatforms": [ "Win64", "Mac" ]
+			"WhitelistPlatforms": [ "Win64", "Linux", "Mac" ]
 		}
 	]
 }
