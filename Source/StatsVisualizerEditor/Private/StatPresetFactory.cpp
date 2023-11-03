@@ -15,3 +15,7 @@ UObject* UCustomStatPresetFactory::FactoryCreateNew(UClass* Class, UObject* InPa
 	return NewObject<UCustomStatPreset>(InParent, Class, Name, Flags);
 }
 
+FText UCustomStatPresetFactory::GetDisplayName() const
+{
+	return FText::FromString(TEXT("Stat Preset"));
+}
