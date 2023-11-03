@@ -9,7 +9,8 @@ Unreal Engine plugin for displaying custom stats.
 ![Plugin Preview](Images/plugin_image.png)
 
 # Installation
-Clone `git clone git@github.com:amuTBKT/StatsVisualizer.git` or unzip the plugin under Project/Plugins directory
+Clone `git clone git@github.com:amuTBKT/StatsVisualizer.git` or unzip the plugin under Project/Plugins directory.
+The plugin requires Unreal Engine version 4.27.2 or above.
 
 # Settings
 Available presets and drawing layout can be configured from **ProjectSettings->Plugins->StatsVisualizer** page.
