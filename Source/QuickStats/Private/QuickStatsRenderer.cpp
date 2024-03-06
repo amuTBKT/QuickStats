@@ -131,7 +131,7 @@ void FQuickStatsRenderer::RegisterStatPresets()
 				}
 				else if (PresetName != NAME_None) //None can be used to disable all preset.
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Preset(%s) is not defined in StatVisualizerSettings!"), *PresetName.ToString());
+					UE_LOG(LogTemp, Warning, TEXT("Preset(%s) is not defined in QuickStatSettings!"), *PresetName.ToString());
 				}
 			}
 		);
