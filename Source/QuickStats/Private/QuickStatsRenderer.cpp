@@ -1,10 +1,10 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
-#include "CustomStatsRenderer.h"
+#include "QuickStatsRenderer.h"
 
 #if STATS
 
-#include "StatsVisualizerSettings.h"
+#include "QuickStatSettings.h"
 #include "String/ParseTokens.h"
 #include "Stats/StatsData.h"
 
@@ -14,16 +14,16 @@
 #include "Engine/Canvas.h"
 #include "Engine/Font.h"
 
-bool			FCustomStatsRenderer::IsRenderingStats = false;
-TArray<FName>	FCustomStatsRenderer::EnabledPresets;
-TSet<FName>		FCustomStatsRenderer::EnabledStatGroups;
+bool			FQuickStatsRenderer::IsRenderingStats = false;
+TArray<FName>	FQuickStatsRenderer::EnabledPresets;
+TSet<FName>		FQuickStatsRenderer::EnabledStatGroups;
 
-const FName		FCustomStatsRenderer::StatsVisualizerPresetsName = FName(TEXT("STAT_Presets"));
-const FName		FCustomStatsRenderer::StatsVisualizerPresetsCategory = FName(TEXT("STATCAT_StatsVisualizerPresets"));
-const FText		FCustomStatsRenderer::StatsVisualizerPresetsDescription = FText::FromString(FString(TEXT("Visualizer for custom stats.")));
+const FName		FQuickStatsRenderer::QuickStatsPresetName = FName(TEXT("STAT_Presets"));
+const FName		FQuickStatsRenderer::QuickStatsPresetCategory = FName(TEXT("STATCAT_QuickStatsPresets"));
+const FText		FQuickStatsRenderer::QuickStatsPresetDescription = FText::FromString(FString(TEXT("Visualizer for quick stats.")));
 
-FDelegateHandle FCustomStatsRenderer::ConsoleAutoCompleteHandle;
-FDelegateHandle FCustomStatsRenderer::OnObjectPropertyChangedHandle;
+FDelegateHandle FQuickStatsRenderer::ConsoleAutoCompleteHandle;
+FDelegateHandle FQuickStatsRenderer::OnObjectPropertyChangedHandle;
 
 static TAutoConsoleVariable<FString> CVarEnabledPresets(
 	TEXT("stats.Presets"),
@@ -45,7 +45,7 @@ static FAutoConsoleCommand SetPresetCommand(
 
 			if (Presets.Num() > 0)
 			{
-				FCustomStatsRenderer::SetPresets_Command(Presets);
+				FQuickStatsRenderer::SetPresets_Command(Presets);
 			}
 		}
 	)
@@ -65,7 +65,7 @@ static FAutoConsoleCommand EnablePresetCommand(
 
 			if (Presets.Num() > 0)
 			{
-				FCustomStatsRenderer::EnablePresets_Command(Presets);
+				FQuickStatsRenderer::EnablePresets_Command(Presets);
 			}
 		}
 	)
@@ -85,29 +85,29 @@ static FAutoConsoleCommand DisablePresetCommand(
 
 			if (Presets.Num() > 0)
 			{
-				FCustomStatsRenderer::DisablePresets_Command(Presets);
+				FQuickStatsRenderer::DisablePresets_Command(Presets);
 			}
 		}
 	)
 );
 
-void FCustomStatsRenderer::RegisterStatPresets()
+void FQuickStatsRenderer::RegisterStatPresets()
 {
 	checkf(GEngine, TEXT("GEngine is not valid, the stat visualizer won't be functional!"));
 	if (GEngine)
 	{
-		UEngine::FEngineStatRender RenderFunc = UEngine::FEngineStatRender::CreateStatic(&FCustomStatsRenderer::OnRenderStats);
-		UEngine::FEngineStatToggle ToggleFunc = UEngine::FEngineStatToggle::CreateStatic(&FCustomStatsRenderer::OnToggleStats);
-		GEngine->AddEngineStat(StatsVisualizerPresetsName, StatsVisualizerPresetsCategory, StatsVisualizerPresetsDescription, RenderFunc, ToggleFunc, false);
+		UEngine::FEngineStatRender RenderFunc = UEngine::FEngineStatRender::CreateStatic(&FQuickStatsRenderer::OnRenderStats);
+		UEngine::FEngineStatToggle ToggleFunc = UEngine::FEngineStatToggle::CreateStatic(&FQuickStatsRenderer::OnToggleStats);
+		GEngine->AddEngineStat(QuickStatsPresetName, QuickStatsPresetCategory, QuickStatsPresetDescription, RenderFunc, ToggleFunc, false);
 	}
 
-	ConsoleAutoCompleteHandle = UConsole::RegisterConsoleAutoCompleteEntries.AddStatic(&FCustomStatsRenderer::PopulateAutoCompletePresetNames);
+	ConsoleAutoCompleteHandle = UConsole::RegisterConsoleAutoCompleteEntries.AddStatic(&FQuickStatsRenderer::PopulateAutoCompletePresetNames);
 
 #if WITH_EDITOR
-	OnObjectPropertyChangedHandle = FCoreUObjectDelegates::OnObjectPropertyChanged.AddStatic(&FCustomStatsRenderer::OnObjectPropertyChanged);
+	OnObjectPropertyChangedHandle = FCoreUObjectDelegates::OnObjectPropertyChanged.AddStatic(&FQuickStatsRenderer::OnObjectPropertyChanged);
 #endif
 
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 	check(Settings);
 
 	// check commandline for enabled presets
@@ -152,11 +152,11 @@ void FCustomStatsRenderer::RegisterStatPresets()
 #endif
 }
 
-void FCustomStatsRenderer::UnregisterStatPresets()
+void FQuickStatsRenderer::UnregisterStatPresets()
 {
 	if (GEngine)
 	{
-		GEngine->RemoveEngineStat(StatsVisualizerPresetsName);
+		GEngine->RemoveEngineStat(QuickStatsPresetName);
 	}
 
 	UConsole::RegisterConsoleAutoCompleteEntries.Remove(ConsoleAutoCompleteHandle);
@@ -167,20 +167,20 @@ void FCustomStatsRenderer::UnregisterStatPresets()
 }
 
 #if WITH_EDITOR
-void FCustomStatsRenderer::OnObjectPropertyChanged(UObject* InObject, FPropertyChangedEvent& InChangeEvent)
+void FQuickStatsRenderer::OnObjectPropertyChanged(UObject* InObject, FPropertyChangedEvent& InChangeEvent)
 {
-	if (InObject->IsA(UCustomStatPreset::StaticClass()))
+	if (InObject->IsA(UQuickStatPreset::StaticClass()))
 	{
 		SetEnabledPresets(EnabledPresets);
 	}
 }
 #endif
 
-void FCustomStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCommand>& AutoCompleteList)
+void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCommand>& AutoCompleteList)
 {
 	const UConsoleSettings* ConsoleSettings = GetDefault<UConsoleSettings>();
 
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 	check(Settings);
 
 	// disable all presets
@@ -228,11 +228,11 @@ void FCustomStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteC
 	}
 }
 
-int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCanvas* Canvas, int32 X, int32 Y, const FVector* ViewLocation, const FRotator* ViewRotation)
+int32 FQuickStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCanvas* Canvas, int32 X, int32 Y, const FVector* ViewLocation, const FRotator* ViewRotation)
 {
 	if (GAreScreenMessagesEnabled && IsRenderingStats)
 	{
-		const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();		
+		const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 		const float ViewportOffsetX = Settings->ViewportOffsetX;
 		const float ViewportOffsetY = Settings->ViewportOffsetY;
 		const int32 ColumnSpacing = Settings->ColumnSpacing;
@@ -277,7 +277,7 @@ int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FC
 		int32 NumStatsToRender = 0;
 		for (FName PresetName : EnabledPresets)
 		{
-			if (const UCustomStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
+			if (const UQuickStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
 			{
 				NumStatsToRender += StatPreset->StatsToDisplay.Num();
 			}
@@ -308,7 +308,7 @@ int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FC
 					}
 				}
 
-				const FCustomStatEvaluationContext EvalulationContext{ StatsData->NameToStatMap, StatNameToCounterStats };
+				const FQuickStatEvaluationContext EvaluationContext{ StatsData->NameToStatMap, StatNameToCounterStats };
 
 				for (FName PresetName : EnabledPresets)
 				{
@@ -318,10 +318,10 @@ int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FC
 						Y += RowHeight;
 					}
 
-					if (const UCustomStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
+					if (const UQuickStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
 					{
-						const TArray<FCustomStat>& StatsToDisplay = StatPreset->StatsToDisplay;
-						for (const FCustomStat& Stat : StatsToDisplay)
+						const TArray<FQuickStat>& StatsToDisplay = StatPreset->StatsToDisplay;
+						for (const FQuickStat& Stat : StatsToDisplay)
 						{
 							// default values for invalid stat
 							const FString StatDescStr = ShortenName(Stat.StatDescription);
@@ -329,7 +329,7 @@ int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FC
 							FColor StatColor = FColor::Magenta;
 
 							double StatValue;
-							if (Stat.StatExpression && Stat.StatExpression->Evaluate(EvalulationContext, StatValue))
+							if (Stat.StatExpression && Stat.StatExpression->Evaluate(EvaluationContext, StatValue))
 							{
 								StatValueStr = FString::Printf(TEXT("%0.2f"), StatValue);
 								StatColor = CalculateStatColor(StatValue, Stat.Budget);
@@ -353,18 +353,18 @@ int32 FCustomStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FC
 	return Y;
 }
 
-bool FCustomStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* ViewportClient, const TCHAR* Stream)
+bool FQuickStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* ViewportClient, const TCHAR* Stream)
 {
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
 	IsRenderingStats = !IsRenderingStats;
 	
 	TSet<FName> StatGroupsToToggle;
 	for (FName PresetName : EnabledPresets)
 	{
-		if (const UCustomStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
+		if (const UQuickStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
 		{
-			for (const FCustomStat& Stat : StatPreset->StatsToDisplay)
+			for (const FQuickStat& Stat : StatPreset->StatsToDisplay)
 			{
 				if (Stat.StatExpression)
 				{
@@ -396,7 +396,7 @@ bool FCustomStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* V
 	return false;
 }
 
-void FCustomStatsRenderer::EnableStatGroup(FName StatGroupName)
+void FQuickStatsRenderer::EnableStatGroup(FName StatGroupName)
 {
 	if (GEngine)
 	{
@@ -418,7 +418,7 @@ void FCustomStatsRenderer::EnableStatGroup(FName StatGroupName)
 	}
 }
 
-void FCustomStatsRenderer::DisableStatGroup(FName StatGroupName)
+void FQuickStatsRenderer::DisableStatGroup(FName StatGroupName)
 {
 	if (GEngine)
 	{
@@ -440,9 +440,9 @@ void FCustomStatsRenderer::DisableStatGroup(FName StatGroupName)
 	}
 }
 
-void FCustomStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
+void FQuickStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 {
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
 	// if rendering we need to enable/disable stat-groups accordingly
 	if (IsRenderingStats)
@@ -452,9 +452,9 @@ void FCustomStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 		TSet<FName> StatGroupsToEnable;
 		for (FName PresetName : NewPresets)
 		{
-			if (const UCustomStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
+			if (const UQuickStatPreset* StatPreset = Settings->GetPresetByName(PresetName))
 			{
-				for (const FCustomStat& Stat : StatPreset->StatsToDisplay)
+				for (const FQuickStat& Stat : StatPreset->StatsToDisplay)
 				{
 					if (Stat.StatExpression)
 					{
@@ -484,9 +484,9 @@ void FCustomStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 	EnabledPresets = NewPresets;
 }
 
-void FCustomStatsRenderer::SetPresets_Command(const TArray<FName>& PresetNames)
+void FQuickStatsRenderer::SetPresets_Command(const TArray<FName>& PresetNames)
 {
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
 	if (PresetNames.Contains(NAME_None))
 	{
@@ -512,15 +512,15 @@ void FCustomStatsRenderer::SetPresets_Command(const TArray<FName>& PresetNames)
 	}
 }
 
-void FCustomStatsRenderer::EnablePresets_Command(const TArray<FName>& PresetNames)
+void FQuickStatsRenderer::EnablePresets_Command(const TArray<FName>& PresetNames)
 {
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 	
 	TArray<FName> NewPresets = EnabledPresets;
 	
 	for (FName PresetName : PresetNames)
 	{
-		if (const UCustomStatPreset* StatPresetToEnable = Settings->GetPresetByName(PresetName))
+		if (const UQuickStatPreset* StatPresetToEnable = Settings->GetPresetByName(PresetName))
 		{			
 			NewPresets.AddUnique(PresetName);
 		}
@@ -533,9 +533,9 @@ void FCustomStatsRenderer::EnablePresets_Command(const TArray<FName>& PresetName
 	}
 }
 
-void FCustomStatsRenderer::DisablePresets_Command(const TArray<FName>& PresetNames)
+void FQuickStatsRenderer::DisablePresets_Command(const TArray<FName>& PresetNames)
 {
-	const UStatsVisualizerSettings* Settings = GetDefault<UStatsVisualizerSettings>();
+	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
 	if (PresetNames.Contains(FName(TEXT("All"))))
 	{
@@ -547,7 +547,7 @@ void FCustomStatsRenderer::DisablePresets_Command(const TArray<FName>& PresetNam
 
 		for (FName PresetName : PresetNames)
 		{
-			if (const UCustomStatPreset* StatPresetToDisable = Settings->GetPresetByName(PresetName))
+			if (const UQuickStatPreset* StatPresetToDisable = Settings->GetPresetByName(PresetName))
 			{
 				NewPresets.Remove(PresetName);
 			}

@@ -1,12 +1,12 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
 #pragma once
 
 #include "Factories/Factory.h"
-#include "StatPresetFactory.generated.h"
+#include "QuickStatPresetFactory.generated.h"
 
 UCLASS(HideCategories = Object, MinimalAPI)
-class UCustomStatPresetFactory : public UFactory
+class UQuickStatPresetFactory : public UFactory
 {
 	GENERATED_UCLASS_BODY()
 

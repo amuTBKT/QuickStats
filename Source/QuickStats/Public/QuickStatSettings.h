@@ -1,24 +1,24 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
-#include "CustomStatExpressions.h"
+#include "QuickStatExpressions.h"
 #include "Engine/DataAsset.h"
-#include "StatsVisualizerSettings.generated.h"
+#include "QuickStatSettings.generated.h"
 
 USTRUCT()
-struct STATSVISUALIZER_API FCustomStat
+struct QUICKSTATS_API FQuickStat
 {
 	GENERATED_BODY()
 
 	// Stat description used by visualizer
-	UPROPERTY(EditAnywhere, Category = "Custom Stat")
+	UPROPERTY(EditAnywhere, Category = "Quick Stat")
 	FString StatDescription = TEXT("STAT_DESC");
 
 	// Stat expression to evaluate
-	UPROPERTY(EditAnywhere, Instanced, Category = "Custom Stat")
-	UCustomStatExpression* StatExpression = nullptr;
+	UPROPERTY(EditAnywhere, Instanced, Category = "Quick Stat")
+	UQuickStatExpression* StatExpression = nullptr;
 
 	/*
 	Budget allocated to the stat, used for coloring.
@@ -26,22 +26,22 @@ struct STATSVISUALIZER_API FCustomStat
 	> 75% of Budget	= Yellow
 	< 75% of Budget	= Green
 	*/
-	UPROPERTY(EditAnywhere, Category = "Custom Stat")
+	UPROPERTY(EditAnywhere, Category = "Quick Stat")
 	double Budget = 0.;
 };
 
 UCLASS()
-class STATSVISUALIZER_API UCustomStatPreset : public UDataAsset
+class QUICKSTATS_API UQuickStatPreset : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Stat Preset")
-	TArray<FCustomStat> StatsToDisplay;
+	TArray<FQuickStat> StatsToDisplay;
 };
 
-UCLASS(config = StatsVisualizer, defaultconfig, meta = (DisplayName = "Stats Visualizer"))
-class STATSVISUALIZER_API UStatsVisualizerSettings : public UDeveloperSettings
+UCLASS(config = QuickStats, defaultconfig, meta = (DisplayName = "Quick Stats"))
+class QUICKSTATS_API UQuickStatSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 
@@ -53,12 +53,12 @@ public:
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 
-	const UCustomStatPreset* GetPresetByName(FName PresetName) const;
+	const UQuickStatPreset* GetPresetByName(FName PresetName) const;
 
 public:
 	// List of stats to display
 	UPROPERTY(config, EditAnywhere, Category = "Stats")
-	TMap<FName, TSoftObjectPtr<UCustomStatPreset>> StatPresets;
+	TMap<FName, TSoftObjectPtr<UQuickStatPreset>> StatPresets;
 
 	// Horizontal offset to start stat rendering
 	UPROPERTY(config, EditAnywhere, Category = "Layout")

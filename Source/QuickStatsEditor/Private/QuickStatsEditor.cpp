@@ -1,4 +1,4 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
@@ -6,9 +6,9 @@
 #include "StatCustomization.h"
 #include "PropertyEditorModule.h"
 
-#define LOCTEXT_NAMESPACE "FStatsVisualizerEditorModule"
+#define LOCTEXT_NAMESPACE "FQuickStatsEditorModule"
 
-class FStatsVisualizerEditorModule : public IModuleInterface
+class FQuickStatsEditorModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override
@@ -24,4 +24,4 @@ public:
 
 #undef LOCTEXT_NAMESPACE
 
-IMPLEMENT_MODULE(FStatsVisualizerEditorModule, StatsVisualizerEditor)
+IMPLEMENT_MODULE(FQuickStatsEditorModule, QuickStatsEditor)

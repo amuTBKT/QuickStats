@@ -1,4 +1,4 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
 #pragma once
 
@@ -12,7 +12,7 @@ class FCanvas;
 class FViewport;
 class FCommonViewportClient;
 
-class FCustomStatsRenderer
+class FQuickStatsRenderer
 {
 public:
 	static void RegisterStatPresets();
@@ -39,9 +39,9 @@ private:
 	static void DisableStatGroup(FName StatGroupName);	
 
 private:
-	static const FName StatsVisualizerPresetsName;
-	static const FName StatsVisualizerPresetsCategory;
-	static const FText StatsVisualizerPresetsDescription;
+	static const FName QuickStatsPresetName;
+	static const FName QuickStatsPresetCategory;
+	static const FText QuickStatsPresetDescription;
 
 	static FDelegateHandle ConsoleAutoCompleteHandle;
 	static FDelegateHandle OnObjectPropertyChangedHandle;

@@ -1,11 +1,11 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
 #pragma once
 
 #include "Engine/DeveloperSettings.h"
-#include "CustomStatExpressions.generated.h"
+#include "QuickStatExpressions.generated.h"
 
-struct STATSVISUALIZER_API FCustomStatEvaluationContext
+struct QUICKSTATS_API FQuickStatEvaluationContext
 {
 #if STATS
 	const TMap<FName, const FComplexStatMessage*>& Stats;
@@ -14,7 +14,7 @@ struct STATSVISUALIZER_API FCustomStatEvaluationContext
 };
 
 UCLASS(Abstract, BlueprintType, EditInlineNew, CollapseCategories)
-class STATSVISUALIZER_API UCustomStatExpression : public UObject
+class QUICKSTATS_API UQuickStatExpression : public UObject
 {
 	GENERATED_BODY()
 
@@ -27,28 +27,28 @@ public:
 	/*
 	* Evaluates a stat expression and returns true if expression is valid.
 	*/
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const { return false; }
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const { return false; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS(meta = (DisplayName = "Constant"))
-class STATSVISUALIZER_API UCustomStatExpressionConstant : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionConstant : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
 public:
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override { OutResult = Constant; return true; }
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override { OutResult = Constant; return true; }
 
 public:
-	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
+	UPROPERTY(EditAnywhere, Category = "QuickStatExpression")
 	double Constant = 0.;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 USTRUCT()
-struct STATSVISUALIZER_API FCodeStatDefinition
+struct QUICKSTATS_API FCodeStatDefinition
 {
 	GENERATED_BODY()
 
@@ -62,7 +62,7 @@ struct STATSVISUALIZER_API FCodeStatDefinition
 };
 
 UCLASS(meta = (DisplayName = "Read Stat"))
-class STATSVISUALIZER_API UCustomStatExpressionReadStat : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionReadStat : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
@@ -74,87 +74,87 @@ public:
 	*	1. Stat name and group doesn't match code declaration.
 	*	2. Stat is not ready (we didn't encounter any code updating the stat).
 	*/	
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
+	UPROPERTY(EditAnywhere, Category = "QuickStatExpression")
 	FCodeStatDefinition StatDefinition;
 
 	// If >=0 use default value in case stat is not available
-	UPROPERTY(EditAnywhere, Category = "CustomStatExpression")
+	UPROPERTY(EditAnywhere, Category = "QuickStatExpression")
 	double DefaultValue = -1.;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS(meta = (DisplayName = "Add"))
-class STATSVISUALIZER_API UCustomStatExpressionAdd : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionAdd : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
 public:
-	UCustomStatExpressionAdd();
+	UQuickStatExpressionAdd();
 
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	TArray<UCustomStatExpression*> Inputs;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	TArray<UQuickStatExpression*> Inputs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS(meta = (DisplayName = "Subtract (A-B)"))
-class STATSVISUALIZER_API UCustomStatExpressionSubtract : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionSubtract : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
 public:
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	UCustomStatExpression* InputA = nullptr;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	UQuickStatExpression* InputA = nullptr;
 
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	UCustomStatExpression* InputB = nullptr;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	UQuickStatExpression* InputB = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS(meta = (DisplayName = "Multiply"))
-class STATSVISUALIZER_API UCustomStatExpressionMultiply : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionMultiply : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
 public:
-	UCustomStatExpressionMultiply();
+	UQuickStatExpressionMultiply();
 
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	TArray<UCustomStatExpression*> Inputs;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	TArray<UQuickStatExpression*> Inputs;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 UCLASS(meta = (DisplayName = "Divide (A/B)"))
-class STATSVISUALIZER_API UCustomStatExpressionDivide : public UCustomStatExpression
+class QUICKSTATS_API UQuickStatExpressionDivide : public UQuickStatExpression
 {
 	GENERATED_BODY()
 
 public:
 	virtual TSet<FName> GetRequiredStatGroupNames() const override;
-	virtual bool Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const override;
+	virtual bool Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const override;
 
 public:
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	UCustomStatExpression* InputA = nullptr;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	UQuickStatExpression* InputA = nullptr;
 
-	UPROPERTY(EditAnywhere, Instanced, Category = "CustomStatExpression")
-	UCustomStatExpression* InputB = nullptr;
+	UPROPERTY(EditAnywhere, Instanced, Category = "QuickStatExpression")
+	UQuickStatExpression* InputB = nullptr;
 };

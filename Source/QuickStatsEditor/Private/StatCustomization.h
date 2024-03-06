@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-#include "CustomStatExpressions.h"
+#include "QuickStatExpressions.h"
 
 #include "IPropertyTypeCustomization.h"
 #include "EditorUndoClient.h"

@@ -1,4 +1,4 @@
-# StatsVisualizer
+# QuickStats
 Unreal Engine plugin for displaying custom stats. 
 * Create custom stat groups.
 * Combine stats to create custom stats.
@@ -13,7 +13,7 @@ Clone `git clone git@github.com:amuTBKT/StatsVisualizer.git` or unzip the plugin
 The plugin requires Unreal Engine version 4.27.2 or above.
 
 # Settings
-Available presets and drawing layout can be configured from **ProjectSettings->Plugins->StatsVisualizer** page.
+Available presets and drawing layout can be configured from **ProjectSettings->Plugins->QuickStats** page.
 
 ![Plugin Settings](Images/plugin_settings.png)
 
@@ -29,11 +29,11 @@ PresetA and PresetB are names for the presets defined in plugin settings.
 # Stat Expressions
 The flexibility of the plugin comes from combining stats using custom expressions.<br>
 Built-in expressions include:
-* `UCustomStatExpressionConstant` to define constant value.
-* `UCustomStatExpressionReadStat` to read stat defined in code.
+* `UQuickStatExpressionConstant` to define constant value.
+* `UQuickStatExpressionReadStat` to read stat defined in code.
 * Add, Subtract, Multiply and Divide operations.
 
-Custom expressions can be defined by inheriting from `UCustomStatExpression`
+Custom expressions can be defined by inheriting from `UQuickStatExpression`
 
 ![Stat Expression](Images/stat_expression.png)
 The example above shows a custom stat "%CulledPrimitives" defined as <br>

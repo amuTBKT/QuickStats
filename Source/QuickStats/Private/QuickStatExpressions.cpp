@@ -1,8 +1,8 @@
-// Copyright 2023 Amit Kumar Mehar. All Rights Reserved.
+// Copyright 2023-2024 Amit Kumar Mehar. All Rights Reserved.
 
-#include "CustomStatExpressions.h"
+#include "QuickStatExpressions.h"
 
-bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
+bool UQuickStatExpressionReadStat::Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const
 {
 #if STATS
 	if (const FComplexStatMessage* StatMessage = Context.Stats.FindRef(StatDefinition.StatName))
@@ -37,15 +37,15 @@ bool UCustomStatExpressionReadStat::Evaluate(const FCustomStatEvaluationContext&
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-UCustomStatExpressionAdd::UCustomStatExpressionAdd()
+UQuickStatExpressionAdd::UQuickStatExpressionAdd()
 {
 	Inputs.SetNum(2);
 }
 
-TSet<FName> UCustomStatExpressionAdd::GetRequiredStatGroupNames() const
+TSet<FName> UQuickStatExpressionAdd::GetRequiredStatGroupNames() const
 {
 	TSet<FName> GroupNames;
-	for (UCustomStatExpression* Input : Inputs)
+	for (UQuickStatExpression* Input : Inputs)
 	{
 		if (Input)
 		{
@@ -55,10 +55,10 @@ TSet<FName> UCustomStatExpressionAdd::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionAdd::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
+bool UQuickStatExpressionAdd::Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const
 {
 	OutResult = 0.;
-	for (UCustomStatExpression* Input : Inputs)
+	for (UQuickStatExpression* Input : Inputs)
 	{
 		double StatValue;
 		if (Input && Input->Evaluate(Context, StatValue))
@@ -76,7 +76,7 @@ bool UCustomStatExpressionAdd::Evaluate(const FCustomStatEvaluationContext& Cont
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-TSet<FName> UCustomStatExpressionSubtract::GetRequiredStatGroupNames() const
+TSet<FName> UQuickStatExpressionSubtract::GetRequiredStatGroupNames() const
 {
 	TSet<FName> GroupNames;
 	if (InputA && InputB)
@@ -87,7 +87,7 @@ TSet<FName> UCustomStatExpressionSubtract::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionSubtract::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
+bool UQuickStatExpressionSubtract::Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const
 {
 	if (InputA && InputB)
 	{
@@ -103,15 +103,15 @@ bool UCustomStatExpressionSubtract::Evaluate(const FCustomStatEvaluationContext&
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-UCustomStatExpressionMultiply::UCustomStatExpressionMultiply()
+UQuickStatExpressionMultiply::UQuickStatExpressionMultiply()
 {
 	Inputs.SetNum(2);
 }
 
-TSet<FName> UCustomStatExpressionMultiply::GetRequiredStatGroupNames() const
+TSet<FName> UQuickStatExpressionMultiply::GetRequiredStatGroupNames() const
 {
 	TSet<FName> GroupNames;
-	for (UCustomStatExpression* Input : Inputs)
+	for (UQuickStatExpression* Input : Inputs)
 	{
 		if (Input)
 		{
@@ -121,10 +121,10 @@ TSet<FName> UCustomStatExpressionMultiply::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionMultiply::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
+bool UQuickStatExpressionMultiply::Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const
 {
 	OutResult = 1.;
-	for (UCustomStatExpression* Input : Inputs)
+	for (UQuickStatExpression* Input : Inputs)
 	{
 		double StatValue;
 		if (Input && Input->Evaluate(Context, StatValue))
@@ -142,7 +142,7 @@ bool UCustomStatExpressionMultiply::Evaluate(const FCustomStatEvaluationContext&
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-TSet<FName> UCustomStatExpressionDivide::GetRequiredStatGroupNames() const
+TSet<FName> UQuickStatExpressionDivide::GetRequiredStatGroupNames() const
 {
 	TSet<FName> GroupNames;
 	if (InputA && InputB)
@@ -153,7 +153,7 @@ TSet<FName> UCustomStatExpressionDivide::GetRequiredStatGroupNames() const
 	return GroupNames;
 }
 
-bool UCustomStatExpressionDivide::Evaluate(const FCustomStatEvaluationContext& Context, double& OutResult) const
+bool UQuickStatExpressionDivide::Evaluate(const FQuickStatEvaluationContext& Context, double& OutResult) const
 {
 	if (InputA && InputB)
 	{
