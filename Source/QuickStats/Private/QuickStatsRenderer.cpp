@@ -18,21 +18,21 @@ bool			FQuickStatsRenderer::IsRenderingStats = false;
 TArray<FName>	FQuickStatsRenderer::EnabledPresets;
 TSet<FName>		FQuickStatsRenderer::EnabledStatGroups;
 
-const FName		FQuickStatsRenderer::QuickStatsPresetName = FName(TEXT("STAT_Presets"));
-const FName		FQuickStatsRenderer::QuickStatsPresetCategory = FName(TEXT("STATCAT_QuickStatsPresets"));
+const FName		FQuickStatsRenderer::QuickStatsPresetName = FName(TEXT("STAT_QuickStats"));
+const FName		FQuickStatsRenderer::QuickStatsPresetCategory = FName(TEXT("STATCAT_QuickStats"));
 const FText		FQuickStatsRenderer::QuickStatsPresetDescription = FText::FromString(FString(TEXT("Visualizer for quick stats.")));
 
 FDelegateHandle FQuickStatsRenderer::ConsoleAutoCompleteHandle;
 FDelegateHandle FQuickStatsRenderer::OnObjectPropertyChangedHandle;
 
 static TAutoConsoleVariable<FString> CVarEnabledPresets(
-	TEXT("stats.Presets"),
+	TEXT("qstats.Presets"),
 	TEXT(""),
 	TEXT("Presets to enable on boot, can be overriden by -statpresets"),
 	ECVF_ReadOnly);
 
 static FAutoConsoleCommand SetPresetCommand(
-	TEXT("stats.SetPresets"),
+	TEXT("qstats.SetPresets"),
 	TEXT("Set active stat presets.\n"),
 	FConsoleCommandWithArgsDelegate::CreateLambda(
 		[](const TArray<FString>& Args)
@@ -52,7 +52,7 @@ static FAutoConsoleCommand SetPresetCommand(
 );
 
 static FAutoConsoleCommand EnablePresetCommand(
-	TEXT("stats.EnablePresets"),
+	TEXT("qstats.EnablePresets"),
 	TEXT("Enable stat presets.\n"),
 	FConsoleCommandWithArgsDelegate::CreateLambda(
 		[](const TArray<FString>& Args)
@@ -72,7 +72,7 @@ static FAutoConsoleCommand EnablePresetCommand(
 );
 
 static FAutoConsoleCommand DisablePresetCommand(
-	TEXT("stats.DisablePresets"),
+	TEXT("qstats.DisablePresets"),
 	TEXT("Disable stat presets.\n"),
 	FConsoleCommandWithArgsDelegate::CreateLambda(
 		[](const TArray<FString>& Args)
@@ -112,7 +112,7 @@ void FQuickStatsRenderer::RegisterStatPresets()
 
 	// check commandline for enabled presets
 	FString RequestedPresets = TEXT("");
-	if (!FParse::Value(FCommandLine::Get(), TEXT("-statpresets="), RequestedPresets, false))
+	if (!FParse::Value(FCommandLine::Get(), TEXT("-qstatpresets="), RequestedPresets, false))
 	{
 		// check console variable
 		RequestedPresets = CVarEnabledPresets.GetValueOnAnyThread();
@@ -186,13 +186,13 @@ void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCo
 	// disable all presets
 	{
 		FAutoCompleteCommand& AutoCompleteCommand = AutoCompleteList.AddDefaulted_GetRef();
-		AutoCompleteCommand.Command = TEXT("stats.SetPresets None");
+		AutoCompleteCommand.Command = TEXT("qstats.SetPresets None");
 		AutoCompleteCommand.Desc = TEXT("Disable all presets");
 		AutoCompleteCommand.Color = ConsoleSettings->AutoCompleteCommandColor;
 	}
 	{
 		FAutoCompleteCommand& AutoCompleteCommand = AutoCompleteList.AddDefaulted_GetRef();
-		AutoCompleteCommand.Command = TEXT("stats.DisablePresets All");
+		AutoCompleteCommand.Command = TEXT("qstats.DisablePresets All");
 		AutoCompleteCommand.Desc = TEXT("Disable all presets");
 		AutoCompleteCommand.Color = ConsoleSettings->AutoCompleteCommandColor;
 	}
@@ -205,7 +205,7 @@ void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCo
 		// set preset
 		{
 			FAutoCompleteCommand& AutoCompleteCommand = AutoCompleteList.AddDefaulted_GetRef();
-			AutoCompleteCommand.Command = *FString::Printf(TEXT("stats.SetPresets %s"), *PresetName);
+			AutoCompleteCommand.Command = *FString::Printf(TEXT("qstats.SetPresets %s"), *PresetName);
 			AutoCompleteCommand.Desc = TEXT("Set this preset");
 			AutoCompleteCommand.Color = ConsoleSettings->AutoCompleteCommandColor;
 		}
@@ -213,7 +213,7 @@ void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCo
 		// enable preset
 		{
 			FAutoCompleteCommand& AutoCompleteCommand = AutoCompleteList.AddDefaulted_GetRef();
-			AutoCompleteCommand.Command = *FString::Printf(TEXT("stats.EnablePresets %s"), *PresetName);
+			AutoCompleteCommand.Command = *FString::Printf(TEXT("qstats.EnablePresets %s"), *PresetName);
 			AutoCompleteCommand.Desc = TEXT("Enable this preset");
 			AutoCompleteCommand.Color = ConsoleSettings->AutoCompleteCommandColor;
 		}
@@ -221,7 +221,7 @@ void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCo
 		// disable preset
 		{
 			FAutoCompleteCommand& AutoCompleteCommand = AutoCompleteList.AddDefaulted_GetRef();
-			AutoCompleteCommand.Command = *FString::Printf(TEXT("stats.DisablePresets %s"), *PresetName);
+			AutoCompleteCommand.Command = *FString::Printf(TEXT("qstats.DisablePresets %s"), *PresetName);
 			AutoCompleteCommand.Desc = TEXT("Disable this preset");
 			AutoCompleteCommand.Color = ConsoleSettings->AutoCompleteCommandColor;
 		}

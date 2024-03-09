@@ -18,11 +18,11 @@ Available presets and drawing layout can be configured from **ProjectSettings->P
 ![Plugin Settings](Images/plugin_settings.png)
 
 # Usage
-* `stat presets` to toggle stat rendering. This internally runs `stat` command to toggle stat groups.
-* `stats.EnablePresets PresetA PresetB` to add presets to active list.
-* `stats.SetPresets PresetA PresetB` to set active presets.
-* `stats.DisablePresets PresetA` to remove presets from active list.
-* `-statpresets=PresetA,PresetB` commandline argument to enable presets by default.
+* `stat quickstats` to toggle stat rendering. This internally runs `stat` command to toggle stat groups.
+* `qstats.EnablePresets PresetA PresetB` to add presets to active list.
+* `qstats.SetPresets PresetA PresetB` to set active presets.
+* `qstats.DisablePresets PresetA` to remove presets from active list.
+* `-qstatpresets=PresetA,PresetB` commandline argument to enable presets by default.
 
 PresetA and PresetB are names for the presets defined in plugin settings.
 
