@@ -179,7 +179,7 @@ void FCodeStatDefinitionCustomization::CustomizeHeader(TSharedRef<IPropertyHandl
 		+SHorizontalBox::Slot()
 		.AutoWidth()
 		[
-			SNew(SComboButton)
+			SAssignNew(StatTreeMenuWidget, SComboButton)
 			.HasDownArrow(true)
 			.ContentPadding(1)
 			.IsEnabled(true)
@@ -209,7 +209,7 @@ void FCodeStatDefinitionCustomization::RefreshDefinitionFromProperty()
 {
 	TArray<void*> RawData;
 	StructPropertyHandle->AccessRawData(RawData);
-	if ((RawData.Num() != 1) || (RawData[0] == nullptr))
+	if ((RawData.Num() != 1) || (RawData.IsEmpty() || RawData[0] == nullptr))
 	{
 		return;
 	}
@@ -294,6 +294,8 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 					*StatGroupNode->GetValueAsString(),
 					*SelectedItem->GetValueAsString());
 				StructPropertyHandle->SetValueFromFormattedString(Value);
+
+				StatTreeMenuWidget->SetIsOpen(false);
 			}
 		}
 	})
@@ -317,6 +319,8 @@ TSharedRef<SWidget> FCodeStatDefinitionCustomization::GetMenuContent()
 					*StatGroupNode->GetValueAsString(),
 					*SelectedItem->GetValueAsString());
 				StructPropertyHandle->SetValueFromFormattedString(Value);
+
+				StatTreeMenuWidget->SetIsOpen(false);
 			}
 
 			return FReply::Handled();

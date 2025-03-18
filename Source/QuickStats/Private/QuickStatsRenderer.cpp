@@ -14,7 +14,7 @@
 #include "Engine/Canvas.h"
 #include "Engine/Font.h"
 
-bool			FQuickStatsRenderer::IsRenderingStats = false;
+bool			FQuickStatsRenderer::bIsRenderingStats = false;
 TArray<FName>	FQuickStatsRenderer::EnabledPresets;
 TSet<FName>		FQuickStatsRenderer::EnabledStatGroups;
 
@@ -230,7 +230,7 @@ void FQuickStatsRenderer::PopulateAutoCompletePresetNames(TArray<FAutoCompleteCo
 
 int32 FQuickStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCanvas* Canvas, int32 X, int32 Y, const FVector* ViewLocation, const FRotator* ViewRotation)
 {
-	if (GAreScreenMessagesEnabled && IsRenderingStats)
+	if (GAreScreenMessagesEnabled && bIsRenderingStats)
 	{
 		const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 		const float ViewportOffsetX = Settings->ViewportOffsetX;
@@ -238,7 +238,7 @@ int32 FQuickStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCa
 		const int32 ColumnSpacing = Settings->ColumnSpacing;
 		const int32 StatDescriptionMaxLength = Settings->StatDescriptionMaxLength;
 		const FLinearColor& BackgroundColor = Settings->BackgroundColor;
-		const bool ShowPresetNames = Settings->ShowPresetNames;
+		const bool bShowPresetNames = Settings->ShowPresetNames;
 
 		const UFont* Font = GEngine->GetLargeFont();
 		const int32 RowHeight = FMath::TruncToInt(Font->GetMaxCharHeight() * 1.1f);
@@ -287,11 +287,11 @@ int32 FQuickStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCa
 		{
 			if (FGameThreadStatsData* StatsData = FLatestGameThreadStatsData::Get().Latest)
 			{
-				const int32 NumRowsToDraw = NumStatsToRender + (ShowPresetNames ? EnabledPresets.Num() : 0);
+				const int32 NumRowsToDraw = NumStatsToRender + (bShowPresetNames ? EnabledPresets.Num() : 0);
 
 				// padding and size are sort of magic numbers :^)
 				const int32 UniformPadding = 8;
-				const int32 PresetScopePadding = ShowPresetNames ? 8 : 0;
+				const int32 PresetScopePadding = bShowPresetNames ? 8 : 0;
 				const int32 StatValueTextWidth = 64;
 				const int32 Width = ColumnSpacing + StatValueTextWidth + UniformPadding + PresetScopePadding;
 				const int32 Height = RowHeight * NumRowsToDraw + 2 * UniformPadding;
@@ -312,7 +312,7 @@ int32 FQuickStatsRenderer::OnRenderStats(UWorld* World, FViewport* Viewport, FCa
 
 				for (FName PresetName : EnabledPresets)
 				{
-					if (ShowPresetNames)
+					if (bShowPresetNames)
 					{
 						Canvas->DrawShadowedString(X, Y, *PresetName.ToString(), Font, FColor::Green);
 						Y += RowHeight;
@@ -357,7 +357,7 @@ bool FQuickStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* Vi
 {
 	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
-	IsRenderingStats = !IsRenderingStats;
+	bIsRenderingStats = !bIsRenderingStats;
 	
 	TSet<FName> StatGroupsToToggle;
 	for (FName PresetName : EnabledPresets)
@@ -374,7 +374,7 @@ bool FQuickStatsRenderer::OnToggleStats(UWorld* World, FCommonViewportClient* Vi
 		}
 	}
 
-	if (IsRenderingStats)
+	if (bIsRenderingStats)
 	{
 		for (FName StatGroup : StatGroupsToToggle)
 		{
@@ -445,7 +445,7 @@ void FQuickStatsRenderer::SetEnabledPresets(TArray<FName> NewPresets)
 	const UQuickStatSettings* Settings = GetDefault<UQuickStatSettings>();
 
 	// if rendering we need to enable/disable stat-groups accordingly
-	if (IsRenderingStats)
+	if (bIsRenderingStats)
 	{
 		TSet<FName> StatGroupsToDisable = EnabledStatGroups;
 

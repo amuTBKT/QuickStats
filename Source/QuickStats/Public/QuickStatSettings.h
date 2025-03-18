@@ -83,4 +83,8 @@ public:
 	// Whether to show Preset categories
 	UPROPERTY(config, EditAnywhere, Category = "Layout")
 	bool ShowPresetNames = true;
+
+private:
+	UPROPERTY(Transient)
+	TMap<FName, TObjectPtr<UQuickStatPreset>> LoadedStatPresets;
 };

@@ -46,7 +46,7 @@ private:
 	static FDelegateHandle ConsoleAutoCompleteHandle;
 	static FDelegateHandle OnObjectPropertyChangedHandle;
 
-	static bool IsRenderingStats;
+	static bool bIsRenderingStats;
 	static TArray<FName> EnabledPresets;
 	// StatExpression can change when modifying Presets, so need to keep track of enabled statgroups.
 	static TSet<FName> EnabledStatGroups;

@@ -13,13 +13,23 @@ void UQuickStatSettings::PostInitProperties()
 	}
 #endif
 
+	LoadedStatPresets.Reset();
+
 #if STATS
 	// load preset data assets
 	for (auto& Itr : StatPresets)
 	{
 		if (ensureMsgf(!Itr.Value.IsNull(), TEXT("[QuickStat] StatPreset(%s) is missing asset reference!"), *Itr.Key.ToString()))
 		{
-			ensureMsgf(Itr.Value.LoadSynchronous(), TEXT("[QuickStat] Asset:(%s) for StatPreset(%s) failed to load!"), *Itr.Value.ToString(), *Itr.Key.ToString());
+			UQuickStatPreset* LoadedPreset = Itr.Value.LoadSynchronous();
+			if (IsValid(LoadedPreset))
+			{
+				LoadedStatPresets.FindOrAdd(Itr.Key) = LoadedPreset;
+			}
+			else
+			{
+				ensureMsgf(false, TEXT("[QuickStat] Asset:(%s) for StatPreset(%s) failed to load!"), *Itr.Key.ToString(), *Itr.Value.ToString());
+			}
 		}
 	}
 #endif
@@ -46,12 +56,22 @@ void UQuickStatSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 	// make sure newly added presets are loaded
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(UQuickStatSettings, StatPresets))
 	{
+		LoadedStatPresets.Reset();
+
 		for (auto& Itr : StatPresets)
 		{
 			// newly added stats are always invalid, so no need to assert here
 			if (!Itr.Value.IsNull())
 			{
-				ensureMsgf(Itr.Value.LoadSynchronous(), TEXT("[QuickStat] Asset:(%s) for StatPreset(%s) failed to load!"), *Itr.Key.ToString(), *Itr.Value.ToString());
+				UQuickStatPreset* LoadedPreset = Itr.Value.LoadSynchronous();				
+				if (IsValid(LoadedPreset))
+				{
+					LoadedStatPresets.FindOrAdd(Itr.Key) = LoadedPreset;
+				}
+				else
+				{
+					ensureMsgf(false, TEXT("[QuickStat] Asset:(%s) for StatPreset(%s) failed to load!"), *Itr.Key.ToString(), *Itr.Value.ToString());
+				}
 			}
 		}
 	}
@@ -60,9 +80,10 @@ void UQuickStatSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyC
 
 const UQuickStatPreset* UQuickStatSettings::GetPresetByName(FName PresetName) const
 {
-	if (StatPresets.Contains(PresetName))
+	const TObjectPtr<UQuickStatPreset>* PresetObjPtr = LoadedStatPresets.Find(PresetName);
+	if (PresetObjPtr && IsValid(PresetObjPtr->Get()))
 	{
-		return StatPresets[PresetName].Get();
+		return PresetObjPtr->Get();
 	}
 	return nullptr;
 }

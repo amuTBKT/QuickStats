@@ -13,6 +13,8 @@
 template <typename ItemType> class STreeView;
 class SSearchBox;
 
+class SComboButton;
+
 class FCodeStatDefinitionCustomization : public IPropertyTypeCustomization, public FEditorUndoClient
 {
 	class FStatTreeNode
@@ -116,7 +118,9 @@ private:
 	FString StatExpressionDisplayName;
 
 	TSharedPtr<STreeView<FTreeNodePtr>> StatTreeWidget;
+	TSharedPtr<SComboButton> StatTreeMenuWidget;
 	TSharedPtr<SSearchBox> StatFilterWidget;
+
 	TArray<FString> FilterStringTokens;
 
 	TArray<FTreeNodePtr> FilteredStatGroupNodes;
